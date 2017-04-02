@@ -1,12 +1,16 @@
 package crypto;
+
+import java.nio.file.Files;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +23,9 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -27,6 +34,8 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Mac;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,16 +44,21 @@ public class Crypto {
 
   private static final String PRIVATEKEY = "PrivateKey";
   private static final String PUBLICKEY = "PublicKey";
+  private static final String DHPRIVATEKEY = "DHPrivateKey";
+  private static final String DHPUBLICKEY = "DHPublicKey";
   private static final String KEYSTORE_TYPE = KeyStore.getDefaultType(); // "JCEKS";
   private static final String KEYPAIRGEN_TYPE = "RSA";
   private static final String RNG_TYPE = "SHA1PRNG";
   private static final String ENCRYPTION_TYPE = "RSA/ECB/PKCS1Padding";
   private static final String HASH_TYPE = "SHA256withRSA";
+  private static final String MAC_TYPE = "HmacSHA256";
 
   private static String _username;
   private static String _password;
   private static KeyStore _keyStore;
   private static KeyPair _keyPair;
+  private static KeyPair _DHKeyPair;
+  private static SecretKey _secretKey;
 
   private String getUsername() {
     return _username;
@@ -55,35 +69,35 @@ public class Crypto {
   }
 
   public Key getPublicKey() {
-    //try {
-    //if (_keyStore != null)
-      //return _keyStore.getKey(PUBLICKEY, getPassword().toCharArray());
-    
-    //loadKeyStore();
-    //return _keyStore.getKey(PUBLICKEY, getPassword().toCharArray());
-    //} catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException e){
-      //e.printStackTrace();
-      //return null;
-    //}
     return _keyPair.getPublic();
   }
 
   public Key getPrivateKey() {
-    //try {
-    //if (_keyStore != null)
-      //return _keyStore.getKey(PRIVATEKEY, getPassword().toCharArray());
-    
-    //loadKeyStore();
-    //return _keyStore.getKey(PRIVATEKEY, getPassword().toCharArray());
-    //} catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException e){
-      //e.printStackTrace();
-      //return null;
-    //}
     return _keyPair.getPrivate();
   }
 
+  public SecretKey getSecretKey() {
+    return _secretKey;
+  }
+
+  public Key getDHPublicKey() {
+    return _DHKeyPair.getPublic();
+  }
+
+  public Key getDHPrivateKey() {
+    return _DHKeyPair.getPrivate();
+  }
+
   private String getKeyStoreDirectory(){
-    return getUsername() + ".jce";
+    return "keys/" + getUsername() + ".jce";
+  }
+
+  private String getPubKeyDirectory(){
+    return "keys/" + getUsername() + ".pubKey";
+  }
+
+  private String getPrivateKeyDirectory(){
+    return "keys/" + getUsername() + ".privKey";
   }
 
   public void init(String username, String password){
@@ -94,10 +108,13 @@ public class Crypto {
     if (keyStoreExists()){
       ks = loadKeyStore();
       _keyPair = retrieveKeyPair(ks);
+      _DHKeyPair = retrieveKeyPairDH();
     } else {
       _keyPair = generateKeyPair();
-      ks = createKeyStore(_keyPair);
+      _DHKeyPair = generateKeyPairDH();
+      ks = createKeyStore( _keyPair);
       storeKeyStore(ks);
+      storeKeyPairDH(_DHKeyPair);
     }
   }
 
@@ -112,9 +129,6 @@ public class Crypto {
       SecureRandom random = SecureRandom.getInstance( RNG_TYPE );
       keyGen.initialize(1024, random);
       KeyPair pair = keyGen.generateKeyPair();
-      Key pubKey = pair.getPublic();
-      Key privKey = pair.getPrivate();
-      
       return pair;
 
     } catch ( NoSuchAlgorithmException e){
@@ -124,24 +138,70 @@ public class Crypto {
   }
 
   private KeyPair retrieveKeyPair(KeyStore keystore) {
-      KeyPair kp = null;
     try {
       Key key = keystore.getKey(PRIVATEKEY, getPassword().toCharArray());
 
       if (key instanceof PrivateKey) {
         // Get certificate of public key
         Certificate cert = keystore.getCertificate(PRIVATEKEY);
-
-        // Get public key
         PublicKey publicKey = cert.getPublicKey();
-
-        // Return a key pair
-        kp = new KeyPair(publicKey, (PrivateKey) key);
-        return kp;
+        return new KeyPair(publicKey, (PrivateKey) key);
       }
       return null;
 
     } catch ( UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e){
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public KeyPair generateKeyPairDH() {
+    try {
+
+      final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
+      keyPairGenerator.initialize(1024);
+      final KeyPair pair = keyPairGenerator.generateKeyPair();
+      return pair;
+
+    } catch ( NoSuchAlgorithmException e){
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public void storeKeyPairDH(KeyPair keypair) {
+    try {
+      byte[] publicKeyBytes = keypair.getPublic().getEncoded();
+      byte[] privateKeyBytes = keypair.getPrivate().getEncoded();
+
+      FileOutputStream fos = new FileOutputStream(getPubKeyDirectory());
+      fos.write(publicKeyBytes);
+      fos.close();
+
+      fos = new FileOutputStream(getPrivateKeyDirectory());
+      fos.write(privateKeyBytes);
+      fos.close();
+
+    } catch ( IOException e){
+      e.printStackTrace();
+    }
+  }
+
+  private KeyPair retrieveKeyPairDH() {
+    try {
+
+      Key pk = null;
+      byte[] pubKeyBytes = Files.readAllBytes(new File(getPubKeyDirectory()).toPath());
+      byte[] privKeyBytes = Files.readAllBytes(new File(getPrivateKeyDirectory()).toPath());
+
+      KeyFactory kf = KeyFactory.getInstance("DH");
+      X509EncodedKeySpec pubspec = new X509EncodedKeySpec(pubKeyBytes);
+      PKCS8EncodedKeySpec privspec = new PKCS8EncodedKeySpec(privKeyBytes);
+      PublicKey pubKey = kf.generatePublic(pubspec);
+      PrivateKey privKey = kf.generatePrivate(privspec);
+      return new KeyPair(pubKey, privKey);
+
+    } catch ( IOException | InvalidKeySpecException | NoSuchAlgorithmException e){
       e.printStackTrace();
       return null;
     }
@@ -152,14 +212,12 @@ public class Crypto {
     try {
       keyStore = KeyStore.getInstance( KEYSTORE_TYPE );  
     } catch ( KeyStoreException e) {
-      System.out.println("1");
       e.printStackTrace();
     }
 
     try {
       keyStore.load(null, getPassword().toCharArray());
     } catch ( NoSuchAlgorithmException | CertificateException | IOException e) {
-      System.out.println("2");
       e.printStackTrace();
     }
 
@@ -167,7 +225,6 @@ public class Crypto {
     try {
       certificate = GenCert.generateCertificate(keyPair);  
     } catch ( Exception e) {
-      System.out.println("3");
       e.printStackTrace();
     }
 
@@ -176,7 +233,6 @@ public class Crypto {
     try {
       keyStore.setKeyEntry( PRIVATEKEY, (Key)keyPair.getPrivate(), getPassword().toCharArray(), certChain);  
     } catch ( KeyStoreException e) {
-      System.out.println("4");
       e.printStackTrace();
     }
     _keyStore = keyStore;
@@ -275,13 +331,16 @@ public class Crypto {
     }
   }
 
-  public byte[] generateDH(){
+  public SecretKey generateDH( Key privateKey, Key publicKey){
     try {
-
       KeyAgreement ka = KeyAgreement.getInstance("DH");
-      ka.init( null );
-      ka.doPhase( null, true );
-      return ka.generateSecret(); 
+      ka.init( privateKey );
+      ka.doPhase( publicKey, true );
+      byte[] key = ka.generateSecret(); 
+
+      SecretKey secretKey = new SecretKeySpec(key,"DH");
+      _secretKey = secretKey;
+      return secretKey;
 
     } catch ( NoSuchAlgorithmException | InvalidKeyException e) {
       e.printStackTrace();
@@ -289,19 +348,17 @@ public class Crypto {
     }
   }
 
-  public SecretKey generateSessionKey(){
-    try {
+  public byte[] genMac(byte[] data, SecretKey secretKey){
+    try { 
 
-      KeyGenerator keygen = KeyGenerator.getInstance("AES");
-      keygen.init(128);
-      return keygen.generateKey();
+        Mac mac = Mac.getInstance( MAC_TYPE );
+        mac.init( secretKey );
+        return mac.doFinal( data );
 
-    } catch ( NoSuchAlgorithmException e) {
+    } catch ( NoSuchAlgorithmException | IllegalStateException | InvalidKeyException e) {
       e.printStackTrace();
       return null;
     }
   }
-
   // timestamp
-  // nonce
 }

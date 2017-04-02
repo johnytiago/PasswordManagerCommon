@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 *.jce
+keys/
 
 # Log file
 *.log
