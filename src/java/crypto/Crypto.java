@@ -40,6 +40,12 @@ import javax.crypto.Mac;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+//imports for MAC_ADDRESS generator
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 public class Crypto {
 
   private static final String PRIVATEKEY = "PrivateKey";
@@ -361,4 +367,27 @@ public class Crypto {
     }
   }
   // timestamp
+	  public static String getMacAddress() throws UnknownHostException,
+	  SocketException{
+		  
+		InetAddress ipAddress = InetAddress.getLocalHost();
+		NetworkInterface networkInterface = NetworkInterface
+		      .getByInetAddress(ipAddress);
+		byte[] macAddressBytes = networkInterface.getHardwareAddress();
+		StringBuilder macAddressBuilder = new StringBuilder();
+		
+		for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++)
+		{
+		  String macAddressHexByte = String.format("%02X",
+		          macAddressBytes[macAddressByteIndex]);
+		  macAddressBuilder.append(macAddressHexByte);
+		
+		  if (macAddressByteIndex != macAddressBytes.length - 1)
+		  {
+		      macAddressBuilder.append(":");
+		  }
+		}
+	
+	return macAddressBuilder.toString();
+}
 }
