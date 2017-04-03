@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-//imports for MAC_ADDRESS generator
+import java.nio.file.Files;
+import com.google.common.primitives.Bytes;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
+
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -360,28 +362,28 @@ public class Crypto {
       return null;
     }
   }
+
+  public byte[] signTriplet(byte[] domainHash, byte[] usernameHash, byte[] password, PrivateKey privateKey){
+    byte[] triplet = Bytes.concat(domainHash, usernameHash, password);
+    return genSign( triplet, privateKey );
+  }
+
+  public static String getMacAddress() throws UnknownHostException, SocketException{
+    InetAddress ipAddress = InetAddress.getLocalHost();
+    NetworkInterface networkInterface = NetworkInterface.getByInetAddress(ipAddress);
+    byte[] macAddressBytes = networkInterface.getHardwareAddress();
+    StringBuilder macAddressBuilder = new StringBuilder();
+
+    for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++){
+      String macAddressHexByte = String.format("%02X", macAddressBytes[macAddressByteIndex]);
+      macAddressBuilder.append(macAddressHexByte);
+
+      if (macAddressByteIndex != macAddressBytes.length - 1){
+        macAddressBuilder.append(":");
+      }
+    }
+
+    return macAddressBuilder.toString();
+  }
   // timestamp
-	  public static String getMacAddress() throws UnknownHostException,
-	  SocketException{
-		  
-		InetAddress ipAddress = InetAddress.getLocalHost();
-		NetworkInterface networkInterface = NetworkInterface
-		      .getByInetAddress(ipAddress);
-		byte[] macAddressBytes = networkInterface.getHardwareAddress();
-		StringBuilder macAddressBuilder = new StringBuilder();
-		
-		for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++)
-		{
-		  String macAddressHexByte = String.format("%02X",
-		          macAddressBytes[macAddressByteIndex]);
-		  macAddressBuilder.append(macAddressHexByte);
-		
-		  if (macAddressByteIndex != macAddressBytes.length - 1)
-		  {
-		      macAddressBuilder.append(":");
-		  }
-		}
-	
-	return macAddressBuilder.toString();
-}
 }
