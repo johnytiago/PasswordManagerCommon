@@ -1,7 +1,7 @@
 package envelope;
 
-import java.security.Key;
 import java.io.Serializable;
+import java.security.Key;
 
 import org.apache.commons.lang3.SerializationUtils;
 

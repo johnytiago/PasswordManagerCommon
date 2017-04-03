@@ -1,7 +1,8 @@
 package crypto;
 
-import static org.junit.Assert.*;
-import java.security.Key;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
