@@ -16,14 +16,13 @@ public class Envelope {
 
   public Envelope(
       Key publicKey,
-      byte[] domain,
-      byte[] username,
-      byte[] password,
-      byte[] usernameHash,
       byte[] domainHash,
+      byte[] usernameHash,
+      byte[] password,
+      byte[] tripletHash,
       int counter) { 
 
-    this.message = new Message(publicKey, domain, username, password, usernameHash, domainHash, counter);
+    this.message = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter);
   }
 
   public byte[] serialize(){
@@ -36,11 +35,10 @@ public class Envelope {
 
   public static class Message implements Serializable{
 
-    public byte[] domain;
-    public byte[] username;
     public byte[] password;
     public byte[] usernameHash;
     public byte[] domainHash;
+    public byte[] tripletHash;
     public int counter;
     public byte[] publicKey;
     
@@ -48,19 +46,17 @@ public class Envelope {
     
     public Message(
         Key publicKey,
-        byte[] domain,
-        byte[] username,
-        byte[] password,
         byte[] usernameHash,
         byte[] domainHash,
+        byte[] password,
+        byte[] tripletHash,
         int counter) { 
 
       this.publicKey = publicKey.getEncoded();
-      this.domain = domain;
-      this.username = username;
-      this.password = password;
-      this.usernameHash = usernameHash;
       this.domainHash = domainHash;
+      this.usernameHash = usernameHash;
+      this.password = password;
+      this.tripletHash = tripletHash;
       this.counter = counter;
         }
   }
