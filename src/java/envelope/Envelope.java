@@ -15,7 +15,7 @@ public class Envelope {
   }
 
   public Envelope(
-      Key publicKey,
+      byte[] publicKey,
       byte[] domainHash,
       byte[] usernameHash,
       byte[] password,
@@ -45,14 +45,14 @@ public class Envelope {
     private static final long serialVersionUID = 1L;
     
     public Message(
-        Key publicKey,
+        byte[] publicKey,
         byte[] usernameHash,
         byte[] domainHash,
         byte[] password,
         byte[] tripletHash,
         int counter) { 
 
-      this.publicKey = publicKey.getEncoded();
+      this.publicKey = publicKey;
       this.domainHash = domainHash;
       this.usernameHash = usernameHash;
       this.password = password;
