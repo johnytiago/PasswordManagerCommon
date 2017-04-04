@@ -1,8 +1,5 @@
 package envelope;
 
-import java.io.Serializable;
-import java.security.Key;
-
 import org.apache.commons.lang3.SerializationUtils;
 
 public class Envelope {
@@ -10,9 +7,7 @@ public class Envelope {
   public Message message;
   public byte[] hmac;
 
-  public Envelope(byte[] message){
-    this.message = (Message) SerializationUtils.deserialize(message);
-  }
+  public Envelope(){}
 
   public Envelope(
       byte[] publicKey,
@@ -25,6 +20,10 @@ public class Envelope {
     this.message = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter);
   }
 
+  public Envelope(byte[] message){
+    this.message = (Message) SerializationUtils.deserialize(message);
+  }
+
   public byte[] serialize(){
     return SerializationUtils.serialize(this.message);
   }
@@ -33,31 +32,7 @@ public class Envelope {
     this.hmac = hmac;
   }
 
-  public static class Message implements Serializable{
-
-    public byte[] password;
-    public byte[] usernameHash;
-    public byte[] domainHash;
-    public byte[] tripletHash;
-    public int counter;
-    public byte[] publicKey;
-    
-    private static final long serialVersionUID = 1L;
-    
-    public Message(
-        byte[] publicKey,
-        byte[] usernameHash,
-        byte[] domainHash,
-        byte[] password,
-        byte[] tripletHash,
-        int counter) { 
-
-      this.publicKey = publicKey;
-      this.domainHash = domainHash;
-      this.usernameHash = usernameHash;
-      this.password = password;
-      this.tripletHash = tripletHash;
-      this.counter = counter;
-        }
+  public void setMessage( Message msg ){
+    this.message = msg;
   }
 }
