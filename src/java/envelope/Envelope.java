@@ -35,4 +35,12 @@ public class Envelope {
   public void setMessage( Message msg ){
     this.message = msg;
   }
+
+  public byte[] getHMAC() {
+    return this.hmac;
+  }
+
+  public Message getMessage(){
+    return this.message;
+  }
 }
