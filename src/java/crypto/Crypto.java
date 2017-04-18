@@ -45,9 +45,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class Crypto {
 
   private static final String PRIVATEKEY = "PrivateKey";
-  private static final String PUBLICKEY = "PublicKey";
-  private static final String DHPRIVATEKEY = "DHPrivateKey";
-  private static final String DHPUBLICKEY = "DHPublicKey";
   private static final String KEYSTORE_TYPE = KeyStore.getDefaultType(); // "JCEKS";
   private static final String KEYPAIRGEN_TYPE = "RSA";
   private static final String RNG_TYPE = "SHA1PRNG";
@@ -57,7 +54,6 @@ public class Crypto {
 
   private static String _username;
   private static String _password;
-  private static KeyStore _keyStore;
   private static KeyPair _keyPair;
   private static KeyPair _DHKeyPair;
   private static SecretKey _secretKey;
@@ -192,7 +188,6 @@ public class Crypto {
   private KeyPair retrieveKeyPairDH() {
     try {
 
-      Key pk = null;
       byte[] pubKeyBytes = Files.readAllBytes(new File(getPubKeyDirectory()).toPath());
       byte[] privKeyBytes = Files.readAllBytes(new File(getPrivateKeyDirectory()).toPath());
 
@@ -237,7 +232,6 @@ public class Crypto {
     } catch ( KeyStoreException e) {
       e.printStackTrace();
     }
-    _keyStore = keyStore;
 
     return keyStore;
   }
@@ -261,7 +255,6 @@ public class Crypto {
       KeyStore ks = KeyStore.getInstance( KEYSTORE_TYPE );
       ks.load(fis, getPassword().toCharArray());
       fis.close();  
-      _keyStore = ks;
       return ks;
 
     } catch ( IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
@@ -385,5 +378,6 @@ public class Crypto {
 
     return macAddressBuilder.toString();
   }
+
   // timestamp
 }
