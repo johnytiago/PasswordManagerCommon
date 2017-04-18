@@ -1,5 +1,8 @@
 package crypto;
 
+import envelope.*;
+import util.*;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,6 +14,8 @@ import javax.crypto.SecretKey;
 import org.junit.Test;
 
 public class CryptoTest {
+
+  private Util util = new Util();
 
   @Test
   public void encryptionPubPriTest() {
@@ -50,23 +55,28 @@ public class CryptoTest {
   }
 
   @Test
-  public void testMac() {
+  public void testHMAC() {
     Crypto client = new Crypto();
     Crypto server = new Crypto();
     client.init("client", "password");
     server.init("server", "password");
-    String message = "This is an envelope message";
+
+    Envelope env = new Envelope(
+      "publicKey".getBytes(),
+      "domainHash".getBytes(),
+      "usernameHash".getBytes(),
+      "password".getBytes(),
+      client.signTriplet("domainHash".getBytes(), "usernameHash".getBytes(), "password".getBytes(), (PrivateKey)client.getPrivateKey()),
+      219831293);
 
     SecretKey secretKeyCli = client.generateDH(client.getDHPrivateKey(), server.getDHPublicKey());
-    byte[] mac = client.genMac( message.getBytes(), secretKeyCli );
-    byte[] clientMsgEncrypted = client.encrypt( message.getBytes(), server.getPublicKey() );
+    env.setHMAC( client.genMac( util.msgToByteArray(env.getMessage()), secretKeyCli) );
+
     // message and mac gets sent to server
 
     SecretKey secretKeySrv = server.generateDH(server.getDHPrivateKey(), client.getDHPublicKey());
-    byte[] clientMsgDecyphered = server.decrypt( clientMsgEncrypted, server.getPrivateKey() );
-    byte[] macVerification = server.genMac( clientMsgDecyphered, secretKeySrv );
-
-    assertArrayEquals( mac , macVerification );
+    byte[] macCalculated = server.genMac( util.msgToByteArray(env.getMessage()) , secretKeySrv);
+    assertArrayEquals( env.getHMAC() , macCalculated );
   }
 
   // TODO: Add more tests
