@@ -76,3 +76,9 @@ workbench.xmi
 
 # Testing environment specific
 derby.log
+
+#####################
+# INTELIJ
+# ###################
+.idea/*
+*.iml
