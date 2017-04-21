@@ -379,5 +379,9 @@ public class Crypto {
     return macAddressBuilder.toString();
   }
 
+  public SecretKey retrieveDHPubKey( byte[] encodedKey ) {
+    return new SecretKeySpec(encodedKey, 0, encodedKey.length, "DH");
+  }
+
   // timestamp
 }
