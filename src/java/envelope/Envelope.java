@@ -4,8 +4,8 @@ import org.apache.commons.lang3.SerializationUtils;
 
 public class Envelope {
 
-  public Message message;
-  public byte[] hmac;
+  private envelope.Message _msg;
+  private byte[] hmac;
 
   public Envelope(){}
 
@@ -17,15 +17,15 @@ public class Envelope {
       byte[] tripletHash,
       int counter) { 
 
-    this.message = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter);
+    this._msg = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter);
   }
 
   public Envelope(byte[] message){
-    this.message = (Message) SerializationUtils.deserialize(message);
+    this._msg = (Message) SerializationUtils.deserialize(message);
   }
 
   public byte[] serialize(){
-    return SerializationUtils.serialize(this.message);
+    return SerializationUtils.serialize(this._msg);
   }
 
   public void setHMAC( byte[] hmac ) {
@@ -33,7 +33,7 @@ public class Envelope {
   }
 
   public void setMessage( Message msg ){
-    this.message = msg;
+    this._msg = msg;
   }
 
   public byte[] getHMAC() {
@@ -41,6 +41,6 @@ public class Envelope {
   }
 
   public Message getMessage(){
-    return this.message;
+    return this._msg;
   }
 }
