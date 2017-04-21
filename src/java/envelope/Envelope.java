@@ -1,11 +1,22 @@
 package envelope;
 
 import org.apache.commons.lang3.SerializationUtils;
+import java.security.Key;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "envelope")
 public class Envelope {
 
+  @XmlElement(name = "message", required = true)
   private envelope.Message _msg;
+  @XmlElement(name = "HMAC", required = true)
   private byte[] hmac;
+  @XmlElement(name = "DHPublicKey", required = true)
+  private byte[] _DHKey;
 
   public Envelope(){}
 
@@ -42,5 +53,13 @@ public class Envelope {
 
   public Message getMessage(){
     return this._msg;
+  }
+
+  public byte[] getDHPublicKey(){
+    return this._DHKey;
+  }
+
+  public void setDHPublicKey( Key dhkey){
+    this._DHKey = dhkey.getEncoded();
   }
 }
