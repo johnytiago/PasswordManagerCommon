@@ -2,13 +2,26 @@ package envelope;
  
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "message")
 public class Message implements Serializable{
 
+  @XmlElement(name = "password")
   public byte[] password;
+  @XmlElement(name = "usernameHash")
   public byte[] usernameHash;
+  @XmlElement(name = "domainHash")
   public byte[] domainHash;
+  @XmlElement(name = "tripletHash")
   public byte[] tripletHash;
+  @XmlElement(name = "counter", required = true)
   public int counter;
+  @XmlElement(name = "publicKey")
   public byte[] publicKey;
 
   private static final long serialVersionUID = 1L;
