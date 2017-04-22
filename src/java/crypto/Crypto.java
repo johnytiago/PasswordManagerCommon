@@ -379,8 +379,16 @@ public class Crypto {
     return macAddressBuilder.toString();
   }
 
-  public SecretKey retrieveDHPubKey( byte[] encodedKey ) {
-    return new SecretKeySpec(encodedKey, 0, encodedKey.length, "DH");
+  public PublicKey retrieveDHPubKey( byte[] publicKeyBytes ) {
+    try {
+      KeyFactory keyFact = KeyFactory.getInstance("DH");
+      X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+      return keyFact.generatePublic(x509KeySpec);
+    } catch ( Exception e){ 
+      e.printStackTrace();
+      System.out.println("Error retrieving DH public key");
+      return null;
+    }
   }
 
   // timestamp
