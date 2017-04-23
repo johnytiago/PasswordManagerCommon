@@ -59,7 +59,7 @@ public class Envelope {
     return this._DHKey;
   }
 
-  public void setDHPublicKey( Key dhkey){
-    this._DHKey = dhkey.getEncoded();
+  public void setDHPublicKey( byte[] dhkey){
+    this._DHKey = dhkey;
   }
 }
