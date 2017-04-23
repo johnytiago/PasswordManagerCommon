@@ -2,7 +2,7 @@ package exception;
 
 import message.PasswordManagerMessages;
 
-public class CounterIncorrectException extends PasswordManagerExceptionHandler{
+public class CounterIncorrectException extends PasswordManagerException{
 
 	/**
 	 * 

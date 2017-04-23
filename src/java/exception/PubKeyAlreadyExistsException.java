@@ -2,7 +2,7 @@ package exception;
 
 import message.PasswordManagerMessages;
 
-public class PubKeyAlreadyExistsException extends PasswordManagerExceptionHandler{
+public class PubKeyAlreadyExistsException extends PasswordManagerException{
 
 	/**
 	 * 

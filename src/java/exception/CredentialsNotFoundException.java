@@ -1,7 +1,7 @@
 package exception;
 import message.PasswordManagerMessages;
 
-public class CredentialsNotFoundException extends PasswordManagerExceptionHandler{
+public class CredentialsNotFoundException extends PasswordManagerException{
 
 	/**
 	 * 

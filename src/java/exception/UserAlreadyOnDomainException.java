@@ -2,7 +2,7 @@ package exception;
 
 import message.PasswordManagerMessages;
 
-public class UserAlreadyOnDomainException extends PasswordManagerExceptionHandler{
+public class UserAlreadyOnDomainException extends PasswordManagerException{
 
 	/**
 	 * 

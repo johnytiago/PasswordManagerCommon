@@ -1,7 +1,7 @@
 package exception;
 import message.PasswordManagerMessages;
 
-public class PubKeyNotFoundException extends PasswordManagerExceptionHandler{
+public class PubKeyNotFoundException extends PasswordManagerException{
 
 
 	/**
