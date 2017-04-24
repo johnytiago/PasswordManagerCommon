@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import com.google.common.primitives.Bytes;
+import java.util.Random;
+import java.util.Arrays;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -41,6 +43,8 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 public class Crypto {
 
@@ -51,12 +55,14 @@ public class Crypto {
   private static final String ENCRYPTION_TYPE = "RSA/ECB/PKCS1Padding";
   private static final String HASH_TYPE = "SHA256withRSA";
   private static final String MAC_TYPE = "HmacSHA256";
+  private static final String SALT = "salt";
 
   private static String _username;
   private static String _password;
   private static KeyPair _keyPair;
   private static KeyPair _DHKeyPair;
   private static SecretKey _secretKey;
+  private static byte[] _salt;
 
   private String getUsername() {
     return _username;
@@ -68,6 +74,10 @@ public class Crypto {
 
   public Key getPublicKey() {
     return _keyPair.getPublic();
+  }
+  
+  public byte[] getSalt(){
+	  return _salt;
   }
 
   public Key getPrivateKey() {
@@ -107,12 +117,15 @@ public class Crypto {
       ks = loadKeyStore();
       _keyPair = retrieveKeyPair(ks);
       _DHKeyPair = retrieveKeyPairDH();
+      _salt = retrieveSalt(ks);
     } else {
       _keyPair = generateKeyPair();
       _DHKeyPair = generateKeyPairDH();
+      _salt= genSalt();
       ks = createKeyStore( _keyPair);
       storeKeyStore(ks);
       storeKeyPairDH(_DHKeyPair);
+      storeSalt(_salt,ks);
     }
   }
 
@@ -184,7 +197,23 @@ public class Crypto {
       e.printStackTrace();
     }
   }
-
+  //######################################
+  public void storeSalt(byte[] salt, KeyStore ks){
+	  try{
+	        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBE");
+	        
+		  SecretKey generatedSecret =
+	                factory.generateSecret(new PBEKeySpec(
+	                        getPassword().toCharArray()
+	                ));
+		  
+		  ks.setEntry(SALT, new KeyStore.SecretKeyEntry(generatedSecret), null);
+	     
+	    } catch (Exception e){
+	      e.printStackTrace();
+	    }
+  }
+//##########################################
   private KeyPair retrieveKeyPairDH() {
     try {
 
@@ -203,7 +232,21 @@ public class Crypto {
       return null;
     }
   }
+  //################################################################################
+  private byte[] retrieveSalt(KeyStore keystore){
+	  try{   //have a dougth not sure if getEncoded will return the same as it was before the toString
+		      Key salt = keystore.getKey(SALT, getPassword().toCharArray());
+		      
+		      return salt.getEncoded();
 
+		    } catch ( UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e){
+		      e.printStackTrace();
+		      return null;
+		    }
+		 
+
+  }
+//################################################################################################
   private KeyStore createKeyStore(KeyPair keyPair){
     KeyStore keyStore = null;
     try {
@@ -390,6 +433,17 @@ public class Crypto {
       return null;
     }
   }
-
+//###############################################################################
+  public byte[] genSalt(){
+	  Key priv = getPrivateKey();
+	  byte[] privbytes = priv.getEncoded();
+	  Random randomGenerator = new Random();
+	  int randomInt1 = randomGenerator.nextInt(100);
+	  int randomInt2 = randomGenerator.nextInt(100)+randomInt1;
+	  byte salt[] = java.util.Arrays.copyOfRange(privbytes,randomInt1,randomInt2);
+	 		  
+	  return salt;
+  }
+  //#############################################################################
   // timestamp
 }
