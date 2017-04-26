@@ -26,6 +26,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -435,14 +436,25 @@ public class Crypto {
   }
 //###############################################################################
   public byte[] genSalt(){
+	  try{
+	  MessageDigest sha = MessageDigest.getInstance("SHA-1");
+	  
 	  Key priv = getPrivateKey();
 	  byte[] privbytes = priv.getEncoded();
+	  
 	  Random randomGenerator = new Random();
 	  int randomInt1 = randomGenerator.nextInt(100);
 	  int randomInt2 = randomGenerator.nextInt(100)+randomInt1;
 	  byte salt[] = java.util.Arrays.copyOfRange(privbytes,randomInt1,randomInt2);
+	  
+	  sha.update(salt);
+	  byte[] saltHashed= sha.digest();
 	 		  
-	  return salt;
+	  return saltHashed;
+	  } catch (Exception e){
+	      e.printStackTrace();
+	    }
+	  return null;
   }
   //#############################################################################
   // timestamp
