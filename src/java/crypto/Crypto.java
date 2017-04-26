@@ -57,7 +57,6 @@ public class Crypto {
   private static final String ENCRYPTION_TYPE = "RSA/ECB/PKCS1Padding";
   private static final String HASH_TYPE = "SHA256withRSA";
   private static final String MAC_TYPE = "HmacSHA256";
-  private static final String SALT = "salt";
 
   private static String _username;
   private static String _password;
@@ -79,7 +78,7 @@ public class Crypto {
   }
   
   public byte[] getSalt(){
-	  return _salt;
+    return genSign( getPublicKey().getEncoded(), (PrivateKey) getPrivateKey());
   }
 
   public Key getPrivateKey() {
@@ -119,15 +118,12 @@ public class Crypto {
       ks = loadKeyStore();
       _keyPair = retrieveKeyPair(ks);
       _DHKeyPair = retrieveKeyPairDH();
-      _salt = retrieveSalt(ks);
     } else {
       _keyPair = generateKeyPair();
       _DHKeyPair = generateKeyPairDH();
-      _salt= genSalt();
       ks = createKeyStore( _keyPair);
       storeKeyStore(ks);
       storeKeyPairDH(_DHKeyPair);
-      storeSalt(_salt,ks);
     }
   }
 
@@ -200,23 +196,6 @@ public class Crypto {
     }
   }
 
-  public void storeSalt(byte[] salt, KeyStore ks){
-	  try{
-	        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBE");
-	        
-		  SecretKey generatedSecret =
-	                factory.generateSecret(new PBEKeySpec(
-	                        getPassword().toCharArray()
-	                ));
-		  KeyStore.ProtectionParameter protParam =
-			        new KeyStore.PasswordProtection(_password.toCharArray());
-		  ks.setEntry(SALT, new KeyStore.SecretKeyEntry(generatedSecret), protParam);
-	     
-	    } catch (Exception e){
-	      e.printStackTrace();
-	    }
-  }
-
   private KeyPair retrieveKeyPairDH() {
     try {
 
@@ -236,20 +215,6 @@ public class Crypto {
     }
   }
 
-  private byte[] retrieveSalt(KeyStore keystore){
-	  try{   //have a dougth not sure if getEncoded will return the same as it was before the toString
-		      Key salt = keystore.getKey(SALT, getPassword().toCharArray());
-		      
-		      return salt.getEncoded();
-
-		    } catch ( UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e){
-		      e.printStackTrace();
-		      return null;
-		    }
-		 
-
-  }
-//################################################################################################
   private KeyStore createKeyStore(KeyPair keyPair){
     KeyStore keyStore = null;
     try {
@@ -435,28 +400,6 @@ public class Crypto {
       System.out.println("Error retrieving DH public key");
       return null;
     }
-  }
-
-  public byte[] genSalt(){
-	  try{
-	  MessageDigest sha = MessageDigest.getInstance("SHA-1");
-	  
-	  Key priv = getPrivateKey();
-	  byte[] privbytes = priv.getEncoded();
-	  
-	  Random randomGenerator = new Random();
-	  int randomInt1 = randomGenerator.nextInt(100);
-	  int randomInt2 = randomGenerator.nextInt(100)+randomInt1;
-	  byte salt[] = java.util.Arrays.copyOfRange(privbytes,randomInt1,randomInt2);
-	  
-	  sha.update(salt);
-	  byte[] saltHashed= sha.digest();
-	 		  
-	  return saltHashed;
-	  } catch (Exception e){
-	      e.printStackTrace();
-	    }
-	  return null;
   }
 
   // timestamp

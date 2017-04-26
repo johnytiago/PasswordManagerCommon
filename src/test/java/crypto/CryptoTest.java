@@ -55,21 +55,18 @@ public class CryptoTest {
     boolean verSign = server.verSign( clientMsgDecyphered, (PublicKey)client.getPublicKey(), sign );
     assertTrue( verSign );
   }
- @Test
- public void testSalt(){
-	 try{
-	  Crypto client = new Crypto();
-	  Crypto client2 = new Crypto();
-	    client.init("client", "password");
-	    Thread.sleep(2000);
-	    client2.init("client", "password");
-	    byte[] salt = client.getSalt();
-	    byte[] salt2 = client2.getSalt();
-	    assertEquals(salt,salt2);
-	 }catch(Exception e){}
- }
-  
-  
+
+  @Test
+  public void testSalt(){
+    Crypto client = new Crypto();
+    Crypto client2 = new Crypto();
+    client.init("client", "password");
+    client2.init("client", "password");
+    byte[] salt = client.getSalt();
+    byte[] salt2 = client2.getSalt();
+    assertArrayEquals(salt,salt2);
+  }
+
   @Test
   public void testHMAC() {
     Crypto client = new Crypto();
