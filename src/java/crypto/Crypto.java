@@ -47,6 +47,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+
 public class Crypto {
 
   private static final String PRIVATEKEY = "PrivateKey";
@@ -198,7 +199,7 @@ public class Crypto {
       e.printStackTrace();
     }
   }
-  //######################################
+
   public void storeSalt(byte[] salt, KeyStore ks){
 	  try{
 	        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBE");
@@ -207,14 +208,15 @@ public class Crypto {
 	                factory.generateSecret(new PBEKeySpec(
 	                        getPassword().toCharArray()
 	                ));
-		  
-		  ks.setEntry(SALT, new KeyStore.SecretKeyEntry(generatedSecret), null);
+		  KeyStore.ProtectionParameter protParam =
+			        new KeyStore.PasswordProtection(_password.toCharArray());
+		  ks.setEntry(SALT, new KeyStore.SecretKeyEntry(generatedSecret), protParam);
 	     
 	    } catch (Exception e){
 	      e.printStackTrace();
 	    }
   }
-//##########################################
+
   private KeyPair retrieveKeyPairDH() {
     try {
 
@@ -233,7 +235,7 @@ public class Crypto {
       return null;
     }
   }
-  //################################################################################
+
   private byte[] retrieveSalt(KeyStore keystore){
 	  try{   //have a dougth not sure if getEncoded will return the same as it was before the toString
 		      Key salt = keystore.getKey(SALT, getPassword().toCharArray());
@@ -434,7 +436,7 @@ public class Crypto {
       return null;
     }
   }
-//###############################################################################
+
   public byte[] genSalt(){
 	  try{
 	  MessageDigest sha = MessageDigest.getInstance("SHA-1");
@@ -456,6 +458,6 @@ public class Crypto {
 	    }
 	  return null;
   }
-  //#############################################################################
+
   // timestamp
 }
