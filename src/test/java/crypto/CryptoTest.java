@@ -3,7 +3,9 @@ package crypto;
 import envelope.*;
 import util.*;
 
+
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.security.PrivateKey;
@@ -52,6 +54,17 @@ public class CryptoTest {
     byte[] clientMsgDecyphered = server.decrypt( clientMsgEncrypted, server.getPrivateKey() );
     boolean verSign = server.verSign( clientMsgDecyphered, (PublicKey)client.getPublicKey(), sign );
     assertTrue( verSign );
+  }
+
+  @Test
+  public void testSalt(){
+    Crypto client = new Crypto();
+    Crypto client2 = new Crypto();
+    client.init("client", "password");
+    client2.init("client", "password");
+    byte[] salt = client.getSalt();
+    byte[] salt2 = client2.getSalt();
+    assertArrayEquals(salt,salt2);
   }
 
   @Test

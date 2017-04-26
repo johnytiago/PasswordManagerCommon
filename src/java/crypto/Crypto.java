@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import com.google.common.primitives.Bytes;
+import java.util.Random;
+import java.util.Arrays;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -24,6 +26,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -41,6 +44,9 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
 
 public class Crypto {
 
@@ -57,6 +63,7 @@ public class Crypto {
   private static KeyPair _keyPair;
   private static KeyPair _DHKeyPair;
   private static SecretKey _secretKey;
+  private static byte[] _salt;
 
   private String getUsername() {
     return _username;
@@ -68,6 +75,10 @@ public class Crypto {
 
   public Key getPublicKey() {
     return _keyPair.getPublic();
+  }
+  
+  public byte[] getSalt(){
+    return genSign( getPublicKey().getEncoded(), (PrivateKey) getPrivateKey());
   }
 
   public Key getPrivateKey() {
