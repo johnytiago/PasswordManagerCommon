@@ -1,6 +1,7 @@
 package util;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 
 import envelope.Message;
 
@@ -23,4 +24,7 @@ public class Util {
       return null;
     }
   }
+	public String publickeyToString(byte[] pub){
+		return Base64.getEncoder().encodeToString(pub);
+	}
 }

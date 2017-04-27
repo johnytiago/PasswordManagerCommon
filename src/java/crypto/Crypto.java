@@ -6,9 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import com.google.common.primitives.Bytes;
+
+import exception.CounterIncorrectException;
+
 import java.util.Random;
 import java.util.Arrays;
-
+import java.util.Base64;
+import java.util.HashMap;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -401,6 +405,8 @@ public class Crypto {
       return null;
     }
   }
+  
 
   // timestamp
+	
 }
