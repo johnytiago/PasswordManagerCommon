@@ -5,7 +5,6 @@ import util.*;
 
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.security.PrivateKey;
@@ -92,5 +91,25 @@ public class CryptoTest {
     assertArrayEquals( env.getHMAC() , macCalculated );
   }
 
-  // TODO: Add more tests
+  @Test
+  public void testCounter() {
+    Crypto client = new Crypto();
+    Crypto server = new Crypto();
+    client.init("client", "password");
+    server.init("server", "password");
+    
+    Envelope env = new Envelope();
+    Message msg = new Message();
+    msg.counter = client.addCounter(server.getDHPublicKey().getEncoded());
+    env.setMessage(msg);
+    
+    assertTrue(server.verifyCounter(client.getDHPublicKey().getEncoded(), msg.counter));
+    
+    Envelope env2 = new Envelope();
+    Message msg2 = new Message();
+    msg2.counter = server.addCounter(client.getDHPublicKey().getEncoded());
+    env2.setMessage(msg2);
+
+    assertTrue(client.verifyCounter(server.getDHPublicKey().getEncoded(), msg2.counter));
+  }
 }

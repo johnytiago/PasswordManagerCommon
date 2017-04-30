@@ -325,7 +325,6 @@ public class Crypto {
       return verify.verify(signature);
 
     } catch ( NoSuchAlgorithmException | InvalidKeyException | SignatureException e){
-      // TODO: Should return maybe exception?
       e.printStackTrace();
       return false;
     }
@@ -398,13 +397,15 @@ public class Crypto {
   
 
   public boolean verifyCounter(byte[] pub, int clientCounter){
-	  if( !counterStore.exists(pub) ){
-		  if( counterStore.get(pub) + 1 == clientCounter ){
-			  counterStore.put(pub, clientCounter);
-			  return true;
+	  if( counterStore.exists(pub) ){
+		  if( counterStore.get(pub) + 1 != clientCounter ){
+			  return false;
 		  }
 	  }
-	  return false;
+	  
+	  // Update counter for 1st msg from client or for any correct counter
+	  counterStore.put(pub, clientCounter);
+	  return true;
   }
 
   public int addCounter(byte[] pub){
