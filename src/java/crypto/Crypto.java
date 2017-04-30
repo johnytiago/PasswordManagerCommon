@@ -57,6 +57,7 @@ public class Crypto {
   private static KeyPair _keyPair;
   private static KeyPair _DHKeyPair;
   private static SecretKey _secretKey;
+  private util.CounterStore counterStore = new util.CounterStore();
 
   private String getUsername() {
     return _username;
@@ -161,7 +162,7 @@ public class Crypto {
     try {
 
       final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
-      keyPairGenerator.initialize(128);
+      keyPairGenerator.initialize(512);
       final KeyPair pair = keyPairGenerator.generateKeyPair();
       return pair;
 
@@ -395,5 +396,28 @@ public class Crypto {
     }
   }
 
-  // timestamp
+  public boolean verifyCounter(byte[] pub, int clientCounter){
+	  if( !counterStore.exists(pub) ){
+		  if( counterStore.get(pub) + 1 == clientCounter ){
+			  counterStore.put(pub, clientCounter);
+			  return true;
+		  }
+	  }
+	  return false;
+  }
+  
+  public int addCounter(byte[] pub){
+	  if( counterStore.exists(pub) ){
+		  int newCounter = counterStore.get(pub) + 1;
+		  counterStore.put(pub, newCounter);
+		  return newCounter;
+	  }
+	  return initCounter(pub);
+  }
+
+  public int initCounter(byte[] pub){
+	  int  value = (int )(Math.random() * 10000);
+	  counterStore.put(pub, value);
+	  return value;
+  }
 }
