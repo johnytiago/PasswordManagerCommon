@@ -406,7 +406,7 @@ public class Crypto {
 	  }
 	  return false;
   }
-  
+
   public int addCounter(byte[] pub){
 	  if( counterStore.exists(pub) ){
 		  int newCounter = counterStore.get(pub) + 1;
