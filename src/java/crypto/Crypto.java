@@ -7,12 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import com.google.common.primitives.Bytes;
 
-import exception.CounterIncorrectException;
-
-import java.util.Random;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -30,7 +24,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
-import java.security.MessageDigest;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
@@ -48,9 +41,6 @@ import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
 
 public class Crypto {
 
@@ -67,7 +57,7 @@ public class Crypto {
   private static KeyPair _keyPair;
   private static KeyPair _DHKeyPair;
   private static SecretKey _secretKey;
-  private static byte[] _salt;
+  private util.CounterStore counterStore = new util.CounterStore();
 
   private String getUsername() {
     return _username;
@@ -172,7 +162,7 @@ public class Crypto {
     try {
 
       final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
-      keyPairGenerator.initialize(1024);
+      keyPairGenerator.initialize(512);
       final KeyPair pair = keyPairGenerator.generateKeyPair();
       return pair;
 
@@ -407,6 +397,29 @@ public class Crypto {
   }
   
 
-  // timestamp
-	
+  public boolean verifyCounter(byte[] pub, int clientCounter){
+	  if( !counterStore.exists(pub) ){
+		  if( counterStore.get(pub) + 1 == clientCounter ){
+			  counterStore.put(pub, clientCounter);
+			  return true;
+		  }
+	  }
+	  return false;
+  }
+  
+  public int addCounter(byte[] pub){
+	  if( counterStore.exists(pub) ){
+		  int newCounter = counterStore.get(pub) + 1;
+		  counterStore.put(pub, newCounter);
+		  return newCounter;
+	  }
+	  return initCounter(pub);
+  }
+
+  public int initCounter(byte[] pub){
+	  int  value = (int )(Math.random() * 10000);
+	  counterStore.put(pub, value);
+	  return value;
+  }
+
 }
