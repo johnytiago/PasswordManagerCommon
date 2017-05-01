@@ -24,7 +24,4 @@ public class Util {
       return null;
     }
   }
-	public String publickeyToString(byte[] pub){
-		return Base64.getEncoder().encodeToString(pub);
-	}
 }
