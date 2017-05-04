@@ -26,9 +26,10 @@ public class Envelope {
       byte[] usernameHash,
       byte[] password,
       byte[] tripletHash,
-      int counter) { 
+      int counter,
+      int carrier) { 
 
-    this._msg = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter);
+    this._msg = new Message(publicKey, usernameHash, domainHash, password, tripletHash, counter,carrier);
   }
 
   public Envelope(byte[] message){
