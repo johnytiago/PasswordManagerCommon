@@ -394,33 +394,43 @@ public class Crypto {
       return null;
     }
   }
-  
+
+  public PublicKey retrievePubKey( byte[] publicKeyBytes ) {
+    try {
+      KeyFactory keyFact = KeyFactory.getInstance(KEYPAIRGEN_TYPE);
+      X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+      return keyFact.generatePublic(x509KeySpec);
+    } catch ( Exception e){
+      e.printStackTrace();
+      System.out.println("Error retrieving public key");
+      return null;
+    }
+  }
 
   public boolean verifyCounter(byte[] pub, int clientCounter){
-	  if( counterStore.exists(pub) ){
-		  if( counterStore.get(pub) + 1 != clientCounter ){
-			  return false;
-		  }
-	  }
-	  
-	  // Update counter for 1st msg from client or for any correct counter
-	  counterStore.put(pub, clientCounter);
-	  return true;
+    if( counterStore.exists(pub) ){
+      if( counterStore.get(pub) + 1 != clientCounter ){
+        return false;
+      }
+    }
+
+    // Update counter for 1st msg from client or for any correct counter
+    counterStore.put(pub, clientCounter);
+    return true;
   }
 
   public int addCounter(byte[] pub){
-	  if( counterStore.exists(pub) ){
-		  int newCounter = counterStore.get(pub) + 1;
-		  counterStore.put(pub, newCounter);
-		  return newCounter;
-	  }
-	  return initCounter(pub);
+    if( counterStore.exists(pub) ){
+      int newCounter = counterStore.get(pub) + 1;
+      counterStore.put(pub, newCounter);
+      return newCounter;
+    }
+    return initCounter(pub);
   }
 
   public int initCounter(byte[] pub){
-	  int  value = (int )(Math.random() * 10000);
-	  counterStore.put(pub, value);
-	  return value;
+    int  value = (int )(Math.random() * 10000);
+    counterStore.put(pub, value);
+    return value;
   }
-
 }
