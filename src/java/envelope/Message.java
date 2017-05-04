@@ -23,6 +23,8 @@ public class Message implements Serializable{
   public int counter;
   @XmlElement(name = "publicKey")
   public byte[] publicKey;
+  @XmlElement(name = "carrier")
+  public int carrier;
 
   private static final long serialVersionUID = 1L;
 
@@ -34,7 +36,8 @@ public class Message implements Serializable{
       byte[] domainHash,
       byte[] password,
       byte[] tripletHash,
-      int counter) { 
+      int counter,
+      int carrier) { 
 
     this.publicKey = publicKey;
     this.domainHash = domainHash;
@@ -42,6 +45,7 @@ public class Message implements Serializable{
     this.password = password;
     this.tripletHash = tripletHash;
     this.counter = counter;
+    this.carrier = carrier;
       }
 
   public void setPassword( byte[] pw ){
@@ -66,5 +70,8 @@ public class Message implements Serializable{
 
   public void setCounter( int c ){
     this.counter = c;
+  }
+  public void setCarrier( int c ){
+	    this.carrier = c;
   }
 }

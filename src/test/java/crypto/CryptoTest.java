@@ -79,7 +79,7 @@ public class CryptoTest {
       "usernameHash".getBytes(),
       "password".getBytes(),
       client.signTriplet("domainHash".getBytes(), "usernameHash".getBytes(), "password".getBytes(), (PrivateKey)client.getPrivateKey()),
-      219831293);
+      219831293,0);
 
     SecretKey secretKeyCli = client.generateDH(client.getDHPrivateKey(), server.getDHPublicKey());
     env.setHMAC( client.genMac( util.msgToByteArray(env.getMessage()), secretKeyCli) );
