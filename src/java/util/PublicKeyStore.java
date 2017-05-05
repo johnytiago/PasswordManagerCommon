@@ -14,4 +14,8 @@ public class PublicKeyStore {
 	public void put(String server, byte[] pubKey) {
 		publicKeys.putIfAbsent(ByteBuffer.wrap(server.getBytes()), pubKey);
 	}
+	
+	public boolean hasKey(byte[] pubKey) {
+		return publicKeys.containsValue(pubKey);
+	}
 }
