@@ -36,8 +36,6 @@ public class Util {
       if ( msg.getTripletHash() != null)
         outputStream.write( msg.getTripletHash() );
       outputStream.write( msg.getWts() );
-      outputStream.write( msg.getRid() );
-      outputStream.write( msg.getCounter() );
       return outputStream.toByteArray();
     } catch( Exception e) {
       e.printStackTrace();
