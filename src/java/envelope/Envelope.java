@@ -17,6 +17,8 @@ public class Envelope {
   private byte[] hmac;
   @XmlElement(name = "DHPublicKey", required = true)
   private byte[] _DHKey;
+  @XmlElement(name = "Signature", required = true)
+  private byte[] _signature;
 
   public Envelope(){}
 
@@ -61,5 +63,13 @@ public class Envelope {
 
   public void setDHPublicKey( byte[] dhkey){
     this._DHKey = dhkey;
+  }
+  
+  public byte[] getSignature(){
+	  return this._signature;
+  }
+
+  public void setSignature( byte[] sign){
+	  this._signature = sign;
   }
 }

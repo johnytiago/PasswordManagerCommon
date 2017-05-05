@@ -17,6 +17,8 @@ public class Util {
         outputStream.write( msg.password );
       if ( msg.tripletHash != null)
         outputStream.write( msg.tripletHash );
+      outputStream.write( msg.wts );
+      outputStream.write( msg.rid );
       outputStream.write( msg.counter );
       return outputStream.toByteArray();
     } catch( Exception e) {
