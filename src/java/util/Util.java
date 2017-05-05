@@ -18,6 +18,8 @@ public class Util {
         outputStream.write( msg.getPassword() );
       if ( msg.getTripletHash() != null)
         outputStream.write( msg.getTripletHash() );
+      if ( msg.getSignature() != null)
+        outputStream.write( msg.getSignature() );
       outputStream.write( msg.getWts() );
       outputStream.write( msg.getRid() );
       outputStream.write( msg.getCounter() );

@@ -27,6 +27,8 @@ public class Message implements Serializable{
     public int wts;
   @XmlElement(name = "rid")
     public int rid;
+  @XmlElement(name = "Signature")
+  private byte[] _signature;
 
 
   private static final long serialVersionUID = 1L;
@@ -110,5 +112,13 @@ public class Message implements Serializable{
 
   public int getRid(){
     return this.rid;
+  }
+
+  public byte[] getSignature(){
+    return this._signature;
+  }
+
+  public void setSignature( byte[] sign){
+    this._signature = sign;
   }
 }
