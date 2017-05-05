@@ -1,7 +1,6 @@
 package util;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Base64;
 
 import envelope.Message;
 
@@ -9,17 +8,36 @@ public class Util {
   public byte[] msgToByteArray(Message msg) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
     try {
-      if ( msg.publicKey != null)
-        outputStream.write( msg.publicKey );
-      if ( msg.usernameHash != null)
-        outputStream.write( msg.usernameHash );
-      if ( msg.password != null)
-        outputStream.write( msg.password );
-      if ( msg.tripletHash != null)
-        outputStream.write( msg.tripletHash );
-      outputStream.write( msg.wts );
-      outputStream.write( msg.rid );
-      outputStream.write( msg.counter );
+      if ( msg.getPublicKey() != null)
+        outputStream.write( msg.getPublicKey() );
+      if ( msg.getDomainHash() != null)
+        outputStream.write( msg.getDomainHash() );
+      if ( msg.getUsernameHash() != null)
+        outputStream.write( msg.getUsernameHash() );
+      if ( msg.getPassword() != null)
+        outputStream.write( msg.getPassword() );
+      if ( msg.getTripletHash() != null)
+        outputStream.write( msg.getTripletHash() );
+      outputStream.write( msg.getWts() );
+      outputStream.write( msg.getRid() );
+      outputStream.write( msg.getCounter() );
+      return outputStream.toByteArray();
+    } catch( Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  public byte[] singnableByteArray(Message msg) {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+    try {
+      if ( msg.getPassword() != null)
+        outputStream.write( msg.getPassword() );
+      if ( msg.getTripletHash() != null)
+        outputStream.write( msg.getTripletHash() );
+      outputStream.write( msg.getWts() );
+      outputStream.write( msg.getRid() );
+      outputStream.write( msg.getCounter() );
       return outputStream.toByteArray();
     } catch( Exception e) {
       e.printStackTrace();
